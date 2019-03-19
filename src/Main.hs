@@ -63,8 +63,8 @@ compile input  = do
           let js = intercalate "\n" $ mapMaybe declToJs decls
           putStrLn js
 
-
-main = compile "1"
+main :: IO ()
+main = compile "lambda (x) . x"
 
 
 -- inputFiles :: Term [FilePath]

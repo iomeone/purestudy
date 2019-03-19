@@ -15,11 +15,13 @@ data-dir: ""
 library
     build-depends: base -any, containers -any,
                    mtl -any, parsec -any, utf8-string -any
+    
+    default-language:    Haskell2010                   
     exposed-modules: PureScript
     exposed: True
     buildable: True
     hs-source-dirs: src
-    other-modules: Main PureScript.CodeGen PureScript.Kinds
+    other-modules: PureScript.CodeGen PureScript.Kinds
                    PureScript.Parser PureScript.TypeChecker PureScript.Types
                    PureScript.Values PureScript.Parser.Common
                    PureScript.Parser.Declarations PureScript.Parser.Types
@@ -35,8 +37,9 @@ executable PureScript
                   ,containers
                   ,mtl 
                   ,parsec
-    buildable: True
-    other-modules: PureScript
+    -- buildable: True
+    other-modules: 
+                 PureScript
                  PureScript.CodeGen
                  PureScript.Declarations
                  PureScript.Kinds
