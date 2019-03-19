@@ -64,7 +64,7 @@ compile input  = do
           putStrLn js
 
 main :: IO ()
-main = compile "lambda (x) . x"
+main = compile "haha = true\n; dd=false"
 
 
 -- inputFiles :: Term [FilePath]
