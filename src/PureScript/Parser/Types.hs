@@ -11,10 +11,10 @@
 -- |
 --
 -----------------------------------------------------------------------------
-
 module PureScript.Parser.Types (
     parseType,
-    parseRow
+    parseRow,
+    parseObject
 ) where
 
 import PureScript.Types
@@ -58,28 +58,23 @@ parseTypeAtom = P.choice $ map P.try
             , parseBoolean
             , parseArray
             , parseObject
-            -- , parseFunction
-            -- , parseTypeVariable
-            -- , parseTypeConstructor
-            -- , parens parseType
-             ]
+            , parseFunction
+            , parseTypeVariable
+            , parseTypeConstructor
+            , parens parseType ]
 
 parseType :: P.Parsec String () Type
 parseType = fold (lexeme parseTypeAtom) (lexeme parseTypeAtom) TypeApp
 
-parseREmpty :: P.Parsec String () Row
-parseREmpty = braces whiteSpace >> return REmpty
+parseNameAndType :: P.Parsec String () (String, Type)
+parseNameAndType = (,) <$> (identifier <* lexeme (P.string "::")) <*> parseType
 
-parseRCons :: P.Parsec String () Row
-parseRCons = RCons <$> (identifier <* lexeme (P.string "::"))
-                   <*> (parseType <* semi)
-                   <*> parseRow
-
-parseRowVariable :: P.Parsec String () Row
-parseRowVariable = RowVar <$> identifier
+parseRowEnding :: P.Parsec String () Row
+parseRowEnding = P.option REmpty (RowVar <$> (lexeme (P.char '|') *> identifier))
 
 parseRow :: P.Parsec String () Row
-parseRow = P.choice $ map P.try
-       [ parseRCons
-       , parseRowVariable
-       , parseREmpty ]
+parseRow = fromList <$> semiSep parseNameAndType <*> parseRowEnding
+  where
+  fromList :: [(String, Type)] -> Row -> Row
+  fromList [] r = r
+  fromList ((name, t):ts) r = RCons name t (fromList ts r)
