@@ -1,0 +1,2 @@
+parseDataDeclaration:  
+data properName  [many identifier] = ctors

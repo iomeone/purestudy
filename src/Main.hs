@@ -55,6 +55,7 @@ compile input  = do
       putStrLn $show err
       exitFailure
     Right decls -> do
+      putStrLn $ "before check: " ++ (show decls)
       case check (typeCheckAll decls) of
         Left typeError -> do
           putStrLn typeError
@@ -63,8 +64,17 @@ compile input  = do
           let js = intercalate "\n" $ mapMaybe declToJs decls
           putStrLn js
 
+fac  0 = 1
+fac n = n * (fac $ n - 1)
+
+
+insertAt :: Int-> Int-> [Int]-> [Int]
+insertAt z y xs
+  | z==1 = y:xs
+
 main :: IO ()
-main = compile "haha = true\n; dd=false"
+main = compile "data A = String {a :: String } "
+
 
 
 -- inputFiles :: Term [FilePath]

@@ -40,7 +40,7 @@ parseValueDeclaration :: P.Parsec String () Declaration
 parseValueDeclaration = ValueDeclaration <$> identifier <*> (lexeme (P.char '=') *> parseValue)
 
 parseDeclaration :: P.Parsec String () Declaration
-parseDeclaration = parseDataDeclaration
+parseDeclaration = parseDataDeclaration --
                    P.<|> parseValueDeclaration
 
 parseDeclarations :: P.Parsec String () [Declaration]

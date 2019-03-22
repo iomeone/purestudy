@@ -58,10 +58,11 @@ parseTypeAtom = P.choice $ map P.try
             , parseBoolean
             , parseArray
             , parseObject
-            , parseFunction
-            , parseTypeVariable
-            , parseTypeConstructor
-            , parens parseType ]
+            -- , parseFunction
+            -- , parseTypeVariable
+            -- , parseTypeConstructor
+            -- , parens parseType
+             ]
 
 parseType :: P.Parsec String () Type
 parseType = fold (lexeme parseTypeAtom) (lexeme parseTypeAtom) TypeApp
