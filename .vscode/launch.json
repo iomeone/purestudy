@@ -11,7 +11,7 @@
             "internalConsoleOptions": "openOnSessionStart",
             "workspace": "${workspaceRoot}",
             "startup": "${workspaceRoot}/src/Main.hs",
-            "startupFunc": "",
+            "startupFunc": "main",
             "startupArgs": "",
             "stopOnEntry": false,
             "mainArgs": "",

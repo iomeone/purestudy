@@ -49,20 +49,20 @@ import System.Exit (exitSuccess, exitFailure)
 compile :: String -> IO ()
 compile input  = do
   putStrLn "compile"
-  let ast = parse parseObject "" input
+  let ast = parse parseDeclarations "" input
   case ast of
     Left err -> do
       putStrLn $show err
       exitFailure
     Right decls -> do
       putStrLn $ "before check: " ++ (show decls)
-      -- case check (typeCheckAll decls) of
-      --   Left typeError -> do
-      --     putStrLn typeError
-      --     exitFailure
-      --   Right _ -> do
-      --     let js = intercalate "\n" $ mapMaybe declToJs decls
-      --     putStrLn js
+      case check (typeCheckAll decls) of
+        Left typeError -> do
+          putStrLn typeError
+          exitFailure
+        Right _ -> do
+          let js = intercalate "\n" $ mapMaybe declToJs decls
+          putStrLn js
 
 fac  0 = 1
 fac n = n * (fac $ n - 1)
@@ -73,7 +73,8 @@ insertAt z y xs
   | z==1 = y:xs
 
 main :: IO ()
-main = compile "{ a :: String }  "
+main = compile "a = \"hahaha\" + 1;"
+-- main = compile "data A = String {a :: String } "
 
 
 
