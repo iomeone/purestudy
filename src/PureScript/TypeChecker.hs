@@ -39,6 +39,8 @@ import Control.Monad.Error
 
 import qualified Data.Map as M
 
+import Debug.Trace
+
 typeCheck :: Declaration -> Check ()
 typeCheck (DataDeclaration dcs@(DataConstructors
   { typeConstructorName = name
@@ -55,13 +57,16 @@ typeCheck (DataDeclaration dcs@(DataConstructors
     guardWith (dctor ++ " is already defined") $ not $ flip M.member (names env') dctor
     let ctorType = Function [ty] $ foldl TypeApp (TypeConstructor name) (map TypeVar args)
     put $ env' { names = M.insert dctor ctorType (names env) }
-typeCheck (ValueDeclaration name val) = rethrow (("Error in declaration " ++ name ++ ": ") ++) $ do
+typeCheck vd@(ValueDeclaration name val) =
+  trace ("---------------------- typeCheck ValueDeclaration: "  ++  (show vd)  )
+  rethrow (("Error in declaration " ++ name ++ ": ") ++) $ do
   env <- get
-  case M.lookup name (names env) of
-    Just ty -> throwError $ name ++ " is already defined"
-    Nothing -> do
-      ty <- typeOf val
-      put (env { names = M.insert name ty (names env) })
+  trace ("---------------------- " ++ "M.lookup " ++ name ++ " " ++  (show (names env))) $
+    case M.lookup name (names env) of
+      Just ty -> throwError $ name ++ " is already defined"
+      Nothing -> do
+        ty <- typeOf val
+        put (env { names = M.insert name ty (names env) })
 
 typeCheckAll :: [Declaration] -> Check ()
 typeCheckAll = mapM_ typeCheck
