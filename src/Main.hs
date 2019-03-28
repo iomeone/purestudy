@@ -74,10 +74,9 @@ insertAt z y xs
 
 main :: IO ()
 main = compile "a = \"hahaha\" + 1;"
+
+{-- 
 -- main = compile "data A = String {a :: String } "
-
-
-
 -- inputFiles :: Term [FilePath]
 -- inputFiles = nonEmpty $ posAny [] $ posInfo
 --      { posDoc = "The input .ps files" }
@@ -95,6 +94,6 @@ main = compile "a = \"hahaha\" + 1;"
 --   , version  = "1.0"
 --   , termDoc  = "Compiles PureScript to Javascript"
 --   }
-
-
 -- main = putStrLn "hahaha"
+
+--}

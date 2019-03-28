@@ -34,6 +34,8 @@ import qualified Control.Category as C
 
 import qualified Data.Map as M
 
+import Debug.Trace
+
 data TypeConstraint
   = TypeConstraint Int Type
   | RowConstraint Int Row deriving Show
@@ -44,10 +46,21 @@ emptyTypeSolution :: TypeSolution
 emptyTypeSolution = TypeSolution (TUnknown, RUnknown)
 
 typeOf :: Value -> Check Type
-typeOf val = do
-  (cs, n, _) <- typeConstraints 0 M.empty val
-  solution <- solveTypeConstraints cs emptyTypeSolution
-  return $ varIfUnknown $ fst (runTypeSolution solution) n
+typeOf val = 
+  trace ("---------------------- typeof: " ++ show val) $ do
+    (cs, n, _) <- typeConstraints 0 M.empty val
+    trace ("---------------------- Constraints: " ++ show cs) $ do
+      -- Constraints: [TypeConstraint 0 String,TypeConstraint 1 Number,TypeConstraint 0 Number,TypeConstraint 1 Number,TypeConstraint 1 Number]
+      -- the first two TypeConstraint is generate from the source code.
+      -- the right three Type Constraint is the suposed type,  if we infer binary type,  
+      -- one is left's suposed type, 
+      -- two is right's supposed type,
+      -- three is the supposed result's type
+
+      --  compile "a = \"hahaha\" + 1;" if compile things like this, will return 5 constraints, 
+      solution <- solveTypeConstraints cs emptyTypeSolution
+
+      return $ varIfUnknown $ fst (runTypeSolution solution) n
 
 varIfUnknown :: Type -> Type
 varIfUnknown = flip evalState M.empty . varIfUnknown'
@@ -292,11 +305,17 @@ typeConstraintsAll n m (t:ts) = do
 solveTypeConstraints :: [TypeConstraint] -> TypeSolution -> Check TypeSolution
 solveTypeConstraints [] s = return s
 solveTypeConstraints (TypeConstraint n t:cs) s = do
-  guardWith "Occurs check failed" $ not $ typeOccursCheck n t
-  let s' = let (f, g) = runTypeSolution s
-           in TypeSolution (replaceTypeInType n t . f, replaceTypeInRow n t . g)
-  cs' <- fmap concat $ mapM (substituteTypeInConstraint n t) cs
-  solveTypeConstraints cs' s'
+  guardWith "Occurs check failed" $ not $ trace ("---------------------- typeOccursCheck: " ++ show n ++ "  " ++ show t)  typeOccursCheck n t
+
+  trace ("---------------------- typeOccursCheck pass ") $ do
+    
+    let s' = let (f, g) = runTypeSolution s
+            in TypeSolution (replaceTypeInType n t . f, replaceTypeInRow n t . g)
+    trace ("---------------------- s' is two value constructor function" ) $ do
+      cs' <- fmap concat $ mapM (substituteTypeInConstraint n t) cs
+      solveTypeConstraints cs' s'
+
+
 solveTypeConstraints (RowConstraint n r:cs) s = do
   guardWith "Occurs check failed" $ not $ rowOccursCheck n r
   let s' = let (f, g) = runTypeSolution s
@@ -398,6 +417,8 @@ unifyRows r1 r2 =
   fromList ([], r) = r
   fromList ((name, t):ts, r) = RCons name t (fromList (ts, r))
 
+
+  --  this function seems to check if current type index is equal the TUnknown's types index, why do this?
 typeOccursCheck :: Int -> Type -> Bool
 typeOccursCheck u (TUnknown u') | u == u' = True
 typeOccursCheck u (Array t) = typeOccursCheck u t
